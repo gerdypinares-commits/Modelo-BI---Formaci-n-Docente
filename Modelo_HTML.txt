@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Modelo BI - Formación Docente (Gold)</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.6.1/mermaid.min.js"></script>
+<script>mermaid.initialize({ startOnLoad: true, theme: "base" });</script>
+
+<style>
+body {
+    font-family: 'Inter', sans-serif;
+    background: #f8fafc;
+    color: #0f172a;
+}
+
+.card {
+    background: white;
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+}
+
+.title {
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.subtitle {
+    color: #64748b;
+}
+
+.badge {
+    display:inline-block;
+    padding:4px 10px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:600;
+}
+
+/* colores */
+.gold { border-left: 6px solid #16a34a; }
+.blue { border-left: 6px solid #2563eb; }
+
+.gold-badge { background:#dcfce7; color:#166534; }
+.blue-badge { background:#dbeafe; color:#1d4ed8; }
+
+table {
+    width:100%;
+    border-collapse:collapse;
+    margin-top:12px;
+}
+
+th {
+    background:#0f172a;
+    color:white;
+    padding:10px;
+}
+
+td {
+    border:1px solid #e2e8f0;
+    padding:10px;
+}
+
+/* 1. Controla el diagrama de Mermaid: Forzamos el primer renglón a plomo y el segundo a blanco */
+.attributeBoxOdd, [class*="attributeBoxOdd"] {
+    fill: #f1f5f9 !important; 
+}
+.attributeBoxEven, [class*="attributeBoxEven"] {
+    fill: #ffffff !important; 
+}
+
+/* 2. Controla las Tablas HTML: Cambiamos 'even' por 'odd' para iniciar la primera fila en plomo */
+tbody tr:nth-child(odd) {
+    background: #f8fafc;
+}
+tbody tr:nth-child(even) {
+    background: #ffffff;
+}
+</style>
+</head>
+
+<body class="p-8 max-w-6xl mx-auto">
+
+<!-- HEADER -->
+<div class="card">
+    <div class="title">Modelo de Datos BI - Formación Docente</div>
+    <div class="subtitle"> Diseño para Power BI</div>
+    <p class="mt-3 text-sm">
+        Este modelo integra las 5 tablas consultadas en uc-da-dev-bronze-east-sqldatabase hacia una estructura tipo estrella
+        para consumo directo en Power BI.
+    </p>
+</div>
+
+<!-- MODELO GENERAL -->
+<div class="card gold">
+ 
+
+
+ 
+<div class="card gold">
+    <span class="badge gold-badge">STAR SCHEMA</span>
+
+    <h2 class="font-bold mt-3">Arquitectura del Modelo</h2>
+
+    <div class="bg-slate-50 p-4 rounded-lg mt-4">
+<div class="mermaid">
+
+erDiagram
+
+    %% =========================
+    %% DIMENSIÓN PRINCIPAL
+    %% =========================
+
+    DIM_DOCENTE {
+        string DNI_NORMALIZADO PK
+        string NRO_DOCUMENTO
+        string NOMBRES
+        date   FECHA_NACIMIENTO
+        string SEXO
+    }
+
+    %% =========================
+    %% FACT TABLES (REGLAS REALES)
+    %% =========================
+
+    FACT_DESEMPENO {
+        string DNI
+    }
+
+    FACT_CAPACITACION {
+        string DNI
+    }
+
+    FACT_ACOMPANAMIENTO {
+        string DNI_NORMALIZADO
+        string Nro_Doc
+    }
+
+    FACT_SATISFACCION {
+        string NRO_DOCUMENTO
+    }
+
+    FACT_REGISTRO_HIST {
+        string DNI_NORMALIZADO
+        string DNI
+    }
+
+    %% =========================
+    %% RELACIONES
+    %% =========================
+
+    DIM_DOCENTE ||--o{ FACT_DESEMPENO : "evalua"
+    DIM_DOCENTE ||--o{ FACT_CAPACITACION : "asiste"
+    DIM_DOCENTE ||--o{ FACT_ACOMPANAMIENTO : "monitorea"
+    DIM_DOCENTE ||--o{ FACT_SATISFACCION : "postula"
+    DIM_DOCENTE ||--o{ FACT_REGISTRO_HIST : "detalle"
+
+</div>
+    </div>
+</div>
+
+
+ 
+
+<!-- DIMENSIÓN -->
+<div class="card blue">
+    <span class="badge blue-badge">DIMENSIÓN</span>
+
+    <h2 class="font-bold mt-2">DIM_DOCENTE (Construida desde tblPersona)</h2>
+
+    <p class="text-sm mt-3">
+        La dimensión docente se construye a partir de la tabla <b>tblPersona (bducci.tbl_DBO_tblPersona)</b>, aplicando
+        procesos de limpieza y normalización para generar la llave única <b>DNI_NORMALIZADO</b>.
+    </p>
+
+    <ul class="list-disc ml-6 text-sm mt-3">
+        <li>DNI_NORMALIZADO (PK)</li>
+        <li>Nombres completos</li>
+        <li>Sexo</li>
+        <li>Fecha de nacimiento</li>
+        <li>Datos de contacto</li>
+    </ul>
+</div>
+
+<!-- FACTS -->
+<div class="card">
+
+    <h2 class="font-bold">Tablas de Hechos (FACTS)</h2>
+
+    <p class="text-sm text-slate-600 mt-2">
+        Detalle de las tablas:
+    </p>
+
+    <table>
+        <tr>
+            <th>Tabla</th>
+            <th>Origen</th>
+            <th>Descripción</th>
+        </tr>
+
+        <tr>
+            <td>FACT_DESEMPENO_DOCENTE</td>
+            <td>DESEMPENIO_DOCENTE_PRES_HIST</td>
+            <td>Evaluación integral del desempeño docente (encuestas, planificación, aula virtual, nota final)</td>
+        </tr>
+
+        <tr>
+            <td>FACT_CAPACITACION_DOCENTE</td>
+            <td>ASIST_CAPA_DOCENTE</td>
+            <td>Participación, asistencia y horas de capacitación docente</td>
+        </tr>
+
+        <tr>
+            <td>FACT_ACOMPANAMIENTO_DOCENTE</td>
+            <td>EVAL_ACOMPA_DOCENTE</td>
+            <td>Monitoreo académico, NPS y nivel de riesgo docente</td>
+        </tr>
+
+        <tr>
+            <td>FACT_SATISFACCION_RECLUTAMIENTO</td>
+            <td>SATISF_RECLUTA_DOCENTE</td>
+            <td>Experiencia del docente en el proceso de reclutamiento</td>
+        </tr>
+
+        <tr>
+            <td>FACT_REGISTRO_CAPA_HIST</td>
+            <td>REGISTRO_CAPA_HIST_DOCENTE</td>
+            <td>Detalle histórico de cursos y actividad formativa (en evaluación para integración o detalle)</td>
+        </tr>
+    </table>
+</div>
+
+<!-- NOTA IMPORTANTE -->
+<div class="card">
+    <h2 class="font-bold">Notas:</h2>
+
+    <div class="text-sm mt-3 space-y-2">
+        <p>✔ El modelo se basa en una arquitectura tipo estrella (Star Schema)</p>
+        <p>✔ La dimensión principal es DIM_DOCENTE construida desde tblPersona tabla confirmada por Claudia </p>
+        <p>✔ Todas las métricas se conectan por DNI (color plomo)</p>
+    </div>
+</div>
+
+</body>
+</html>
