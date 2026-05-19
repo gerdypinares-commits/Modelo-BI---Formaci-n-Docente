@@ -115,8 +115,7 @@ erDiagram
     %% =========================
 
     DIM_DOCENTE {
-        string DNI_NORMALIZADO PK
-        string NRO_DOCUMENTO
+        string NRO_DOCUMENTO PK
         string NOMBRES
         date   FECHA_NACIMIENTO
         string SEXO
@@ -240,7 +239,7 @@ erDiagram
     <div class="text-sm mt-3 space-y-2">
         <p>✔ El modelo se basa en una arquitectura tipo estrella (Star Schema)</p>
         <p>✔ La dimensión principal es DIM_DOCENTE construida desde tblPersona tabla confirmada por Claudia </p>
-        <p>✔ Todas las métricas se conectan por DNI (color plomo)</p>
+        <p>✔ Todas las métricas se conectan por DNI (color plomo principal)</p>
     </div>
 </div>
 
